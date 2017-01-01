@@ -1,8 +1,8 @@
 title: 潜心笃志
-#description: 潜心笃志
+description: Fall behind or drop
 google_analytics: 
 show_downloads: false
 theme: jekyll-theme-cayman
 
-#gems:
-#  - jekyll-mentions
+gems:
+  - jekyll-mentions
