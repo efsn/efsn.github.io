@@ -1,7 +1,7 @@
 markdown: kramdown
 permalink: /:year/:month/:day/:title/
-url: http://blog.nswebfrog.com
-author: nswebfrog
+url: http://blog.elmi.cn
+author: arthur
 highlighter: rouge
 exclude: ["Rakefile", "CNAME", "README.md"]
 safe: false
