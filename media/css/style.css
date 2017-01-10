@@ -17,7 +17,7 @@ body {
 }
 
 a {
-    color: #6a9fb5;
+    color: #dd0000;
     text-decoration: none;
 }
 
@@ -241,7 +241,7 @@ footer a {
     margin: 1px;
     border: 1px solid rgba(1, 1, 1, 0);
     border-bottom: 1px dashed #BBB;
-    color: #75b5aa;
+    color: #B9221F;
     text-decoration: none;
 }
 
