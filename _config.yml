@@ -1,9 +1,5 @@
 markdown: kramdown
   input: GFM
-  extensions:
-    - autolink
-    - footnotes
-    - smart
   syntax_highlighter: rouge
 permalink: /:year/:month/:day/:title/
 url: http://blog.elmi.cn

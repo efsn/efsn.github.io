@@ -23,15 +23,15 @@ layout: page
     {% if paginator.previous_page %}
     {% if paginator.previous_page == 1 %}
     <a href="/">
-        &lg;前页
+        &lt;前页
     </a>
     {% else %}
     <a href="/page{{paginator.previous_page}}">
-        &lg;前页
+        &lt;前页
     </a>
     {% endif %}
     {% else %}
-    <span class="previous disabled">&lg;前页</span>
+    <span class="previous disabled">&lt;前页</span>
     {% endif %}
 
     {% if paginator.page == 1 %}
