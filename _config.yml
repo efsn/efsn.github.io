@@ -1,9 +1,9 @@
 markdown: kramdown
 permalink: /:year/:month/:day/:title/
 url: http://blog.elmi.cn
-author: arthur
+author: Arthur
 highlighter: rouge
-exclude: ["Rakefile", "CNAME", "README.md"]
+exclude: ["Rakefile", "CNAME", "README.md", "drafts"]
 safe: false
 paginate: 10
 
