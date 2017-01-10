@@ -17,7 +17,7 @@ body {
 }
 
 a {
-    color: #dd0000;
+    color: #6a9fb5;
     text-decoration: none;
 }
 
@@ -182,7 +182,7 @@ nav a {
 }
 
 nav a:hover {
-    background-color: #ff0000;
+    background-color: #75b5aa;
     text-decoration: none;
     color: #f9f9f9;
     -webkit-transition: color .2s linear;
@@ -241,7 +241,7 @@ footer a {
     margin: 1px;
     border: 1px solid rgba(1, 1, 1, 0);
     border-bottom: 1px dashed #BBB;
-    color: #B9221F;
+    color: #75b5aa;
     text-decoration: none;
 }
 
@@ -295,7 +295,7 @@ footer a:hover {
 
 .paginator .current-page {
     color: white;
-    background: #ff0000;
+    background: #75b5aa;
 }
 
 .paginator a:hover {

@@ -7,6 +7,7 @@ exclude: ["Rakefile", "CNAME", "README.md", "drafts"]
 safe: false
 paginate: 10
 
+# color: #75b5aa;
 
 # Gems
 gems: [jekyll-paginate]
