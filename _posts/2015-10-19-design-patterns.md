@@ -8,6 +8,7 @@ tags: [Pattern]
 {:toc}
 
 # 可复用对象基础
+
 > 依赖 param
 > 关联 field 两者之间只存在业务或者逻辑关系，属性无关
 > 聚合 collection 容器与元素
