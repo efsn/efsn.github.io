@@ -6,6 +6,7 @@ tags: [Security]
 ---
 * TOC
 {:toc}
+
 # Encrypt & Decrypt
 > Cryptographic service e.g: signature, message-digest, cipher, mac, key-store
 
