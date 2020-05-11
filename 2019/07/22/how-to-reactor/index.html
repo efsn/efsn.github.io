@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"blog.elmi.cn","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"right","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":"default"},"back2top":{"enable":true,"sidebar":true,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="What’s Reactive Why’s Reactive How to reactive  What 基于事件驱动&#x2F;订阅模型Servlet3.0之前，线程会Block到业务处理完并返回后结束Servlet（单线程）Servlet3.0规范中一个新特性：异步处理支持；在接收到请求之后，Servlet线程可以将耗时的task委派给另一个线程来完成，在不生成响应的情况下返回至容器（Master&#x2F;W">
+<meta property="og:type" content="article">
+<meta property="og:title" content="How to reactor">
+<meta property="og:url" content="https://blog.elmi.cn/2019/07/22/how-to-reactor/index.html">
+<meta property="og:site_name" content="格物致知">
+<meta property="og:description" content="What’s Reactive Why’s Reactive How to reactive  What 基于事件驱动&#x2F;订阅模型Servlet3.0之前，线程会Block到业务处理完并返回后结束Servlet（单线程）Servlet3.0规范中一个新特性：异步处理支持；在接收到请求之后，Servlet线程可以将耗时的task委派给另一个线程来完成，在不生成响应的情况下返回至容器（Master&#x2F;W">
+<meta property="og:locale" content="cn">
+<meta property="article:published_time" content="2019-07-22T14:38:44.000Z">
+<meta property="article:modified_time" content="2019-10-08T12:51:07.415Z">
+<meta property="article:author" content="Arthur Chen">
+<meta property="article:tag" content="functional">
+<meta property="article:tag" content="reactive">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="https://blog.elmi.cn/2019/07/22/how-to-reactor/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'cn'
+  };
+</script>
+
+  <title>How to reactor | 格物致知</title>
+  
+
+
+  <script>
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "https://hm.baidu.com/hm.js?4c41fb2326a2b049f7ede89420d253a4";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<link rel="alternate" href="/atom.xml" title="格物致知" type="application/atom+xml">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">格物致知</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">FALL BEHIND OR DROP</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-fw fa-home"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-translation">
+
+    <a href="/translation/" rel="section"><i class="fa fa-fw fa-language"></i>Translation</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-fw fa-th"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-fw fa-tags"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-fw fa-archive"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-fw fa-user"></i>About</a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="cn">
+    <link itemprop="mainEntityOfPage" href="https://blog.elmi.cn/2019/07/22/how-to-reactor/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="https://avatars3.githubusercontent.com/u/3351055?s=400&u=649f85e11baefc921a9cdc37e7769de61055dfa3&v=4">
+      <meta itemprop="name" content="Arthur Chen">
+      <meta itemprop="description" content="Tech & Life">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="格物致知">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          How to reactor
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2019-07-22 22:38:44" itemprop="dateCreated datePublished" datetime="2019-07-22T22:38:44+08:00">2019-07-22</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-calendar-check-o"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2019-10-08 20:51:07" itemprop="dateModified" datetime="2019-10-08T20:51:07+08:00">2019-10-08</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-file-word-o"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>2.9k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="fa fa-clock-o"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>3 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <blockquote>
+<p>What’s Reactive</p>
+<p>Why’s Reactive</p>
+<p>How to reactive</p>
+</blockquote>
+<h2 id="What"><a href="#What" class="headerlink" title="What"></a>What</h2><blockquote>
+<p>基于事件驱动/订阅模型<br>Servlet3.0之前，线程会Block到业务处理完并返回后结束Servlet（单线程）<br>Servlet3.0规范中一个新特性：异步处理支持；在接收到请求之后，Servlet线程可以将耗时的task委派给另一个线程来完成，在不生成响应的情况下返回至容器（Master/Worker模型）</p>
+</blockquote>
+<p>在传统的编程范式中，一般通过<code>Iterator</code>模式来遍历一个序列，这种遍历方式是由调用者来控制节奏的，采用<code>pull</code>方式。每次通过<code>next()</code>方法来获取序列中的下一个值。</p>
+<p><strong>Reactive Stream</strong>采用<code>push</code>方式，当publisher有新的数据产生时，这些数据会被<code>push</code>到<em>subcriber</em>来进行处理；在Stream中可以添加各种不同的操作来处理数据，形成数据链。这种以声明式添加的处理链只有在订阅操作时才会真正执行。</p>
+<p>到一个重要的概念是<code>backpressure</code>，在基本的消息推送模式中，当消息发布者产生数据的速度过快时，会使得消息订阅的处理速度无法跟上产生的速度，从而给订阅者造成很大的压力。当压力过大时，有可能造成订阅者本身的奔溃，所产生的及联效应甚至<br>可能造成整个系统的瘫痪。<code>backpressure</code>的作用在于提供一种从订阅到生产者的反馈渠道。订阅者可以通过<code>request()</code>方法来声明其一次所能处理的消息<code>request()</code>方法调用</p>
+<p>//TODO 反应式流规范？？？<br>Reactor完全基于反应式流规范设计和实现的库，Reactor也是Spring5中反应式编程的基础。</p>
+<a id="more"></a>
+
+<h3 id="Mono-amp-Flux"><a href="#Mono-amp-Flux" class="headerlink" title="Mono &amp; Flux"></a>Mono &amp; Flux</h3><blockquote>
+<p>Reactor中的两个基本概念</p>
+<p>核心组件</p>
+</blockquote>
+<p>Flux表示0～N个元素的异步序列，该序列可以包含三种不同类型的消息通知</p>
+<ul>
+<li>正常包含元素的消息</li>
+<li>序列结束的消息</li>
+<li>序列出错的消息</li>
+</ul>
+<p>当消息通知产生时，订阅者对应的方法会被调用。</p>
+<ul>
+<li>onNext</li>
+<li>onComplete</li>
+<li>onError</li>
+</ul>
+<p>Mono表示0～1个元素的异步序列。该序列中同样包含与Flux相同的三种类型的消息通知。Flux和Mono之间可以进行转换？？？<br>对一个Flux序列进行count操作，得到的结果是一个Mono<Long>对象，把两个Mono序列合并在一起，得到一个Flux对象？？？</p>
+<p>有多种方式可以创建Flux序列</p>
+<ul>
+<li>just()，可以指定序列中包含的全部元素，创建出来的Flux序列在发布这些元素之后会自动结束。</li>
+<li>fromArray fromIterable fromStream</li>
+<li>empty()，创建一个不包含任何元素，只发布结束消息的序列</li>
+<li>error，创建一个只包含错误消息的序列</li>
+<li>never，创建一个不包含任何消息通知的序列</li>
+<li>range</li>
+<li>interval(Duration)，创建一个包含了从0开始递增的Long对象的序列，其中包含的元素按照指定的间隔来发布。除了间隔时间之外，还可以指定起始元素发布之前的延迟时间</li>
+<li>intervalMillis，与interval的作用相同，只不过指定来时间单位毫秒</li>
+</ul>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Flux.just(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>).subcribe&#123;println(it)&#125;</span><br><span class="line">Flux.fromArray(arrayOf(<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>)).subcribe&#123;println(it)&#125;</span><br><span class="line">Flux.empty().subcribe&#123;println(it)&#125;</span><br><span class="line">Flux.error(RuntimeException(<span class="string">"Error"</span>)).subcribe&#123;println(it)&#125;</span><br><span class="line">Flux.range(<span class="number">10</span>,<span class="number">10</span>).subcribe&#123;println(it)&#125;</span><br><span class="line">Flux.interval(Duration.of(<span class="number">10</span>,ChronoUnit.SECONDS)).subcribe&#123;println(it)&#125;</span><br><span class="line">Flux.intervalMillis(<span class="number">3000</span>).subcribe&#123;println(it)&#125;</span><br></pre></td></tr></table></figure>
+<p>以上只适合简单的序列生成，当逻辑复杂时，则应该使用generate或者create</p>
+<p>generate通过同步和逐一的方式来产生Flux，序列的产生是通过调用所提供的SynchronousSink对象的next、complete、error方法来完成的。<br>逐一生成的含义是在具体的生成逻辑中，next方法只能最多被调用一次。在某些情况下，序列的生成可能是有状态的，需要用到某些状态对象。此时可以使用generate方法的另一种形式<br>generate(Callable<S> stateSupplier, BiFunction&lt;S,SynchronousSink&lt;T, S&gt;&gt; generator)，其中stateSupplier用来提供初始的状态对象。在进行序列生成时，状态对象会作为generate使用的第一个参数传入，<br>可以在对应的逻辑中对该状态进修改以供下一次生成时使用。</p>
+<p>在如下示例中，第一个序列的生成逻辑中通过next()方法产生一个简单的值，然后通过complete()方法来结束该序列。<br>如果不调用complete()方法，所产生的是一个无限序列。第二个序列的生成逻辑中的状态对象是一个ArrayList对象。实际产生的值是一个随机数。产生的随机数被添加到ArrayList中。<br>当产生了10个数时，通过complete()方法来结束序列。</p>
+<figure class="highlight kotlin"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">Flux.generate&#123;sink -&gt;  </span><br><span class="line">    sink.next(<span class="string">"hello"</span>)</span><br><span class="line">    sink.complete() <span class="comment">//如果不complete则生成一个无限序列</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">Flux.generate(&#123; mutableListOf() &#125;)&#123;list, sink -&gt;</span><br><span class="line">    <span class="keyword">val</span> x = <span class="number">1</span></span><br><span class="line">    list.add(x)</span><br><span class="line">    sink.next(x)</span><br><span class="line">    <span class="keyword">if</span>(list.size == <span class="number">5</span>)&#123;</span><br><span class="line">        sink.complete()</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> list</span><br><span class="line">&#125;.subcribe&#123;println(it)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>create()</p>
+<p>（目前推荐Kotlin的std.lib??）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">T.toFlux() | T.toMono()</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+
+<p>Reactor是JVM的NIO编程基础，具有高效的需求管理。直接与Java8的CompletableFuture、Stream、Duration。</p>
+<h3 id="8个比较维度"><a href="#8个比较维度" class="headerlink" title="8个比较维度"></a>8个比较维度</h3><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>参考</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Composable</td>
+<td>CompletableFuture</td>
+</tr>
+<tr>
+<td>Lazy</td>
+<td>Stream</td>
+</tr>
+<tr>
+<td>Reusable</td>
+<td>Optional</td>
+</tr>
+<tr>
+<td>Asynchronous</td>
+<td>Obervable(RxJava v1)</td>
+</tr>
+<tr>
+<td>Cacheable</td>
+<td>Observable(RxJava v2)</td>
+</tr>
+<tr>
+<td>Push or Pull</td>
+<td>Flowable(RxJava v2)</td>
+</tr>
+<tr>
+<td>Backpressure</td>
+<td>Flux(Reactor Core</td>
+</tr>
+<tr>
+<td>Operator fusion</td>
+<td>–</td>
+</tr>
+</tbody></table>
+<h3 id="WebFlux-amp-WebMvc"><a href="#WebFlux-amp-WebMvc" class="headerlink" title="WebFlux &amp; WebMvc"></a>WebFlux &amp; WebMvc</h3><h3 id="Usage"><a href="#Usage" class="headerlink" title="Usage"></a>Usage</h3><ul>
+<li>异步响应</li>
+<li>流式响应</li>
+<li>背压</li>
+<li>websocket支持</li>
+</ul>
+<h3 id="How-to-test-with-springboot"><a href="#How-to-test-with-springboot" class="headerlink" title="How to test with springboot"></a>How to test with springboot</h3><blockquote>
+<p>mock &amp; integretion ??</p>
+</blockquote>
+
+    </div>
+
+    
+    
+    
+        <div class="reward-container">
+  <div></div>
+  <button onclick="var qr = document.getElementById('qr'); qr.style.display = (qr.style.display === 'none') ? 'block' : 'none';">
+    Donate
+  </button>
+  <div id="qr" style="display: none;">
+      
+      <div style="display: inline-block;">
+        <img src="/images/wechatpay.png" alt="Arthur Chen WeChat Pay">
+        <p>WeChat Pay</p>
+      </div>
+      
+      <div style="display: inline-block;">
+        <img src="/images/alipay.jpeg" alt="Arthur Chen Alipay">
+        <p>Alipay</p>
+      </div>
+
+  </div>
+</div>
+
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Arthur Chen
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://blog.elmi.cn/2019/07/22/how-to-reactor/" title="How to reactor">https://blog.elmi.cn/2019/07/22/how-to-reactor/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fa fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/functional/" rel="tag"># functional</a>
+              <a href="/tags/reactive/" rel="tag"># reactive</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2019/07/16/design-patterns/" rel="prev" title="design-patterns">
+      <i class="fa fa-chevron-left"></i> design-patterns
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/07/30/translation/" rel="next" title="translation">
+      translation <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#What"><span class="nav-number">1.</span> <span class="nav-text">What</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Mono-amp-Flux"><span class="nav-number">1.1.</span> <span class="nav-text">Mono &amp; Flux</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8个比较维度"><span class="nav-number">1.2.</span> <span class="nav-text">8个比较维度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#WebFlux-amp-WebMvc"><span class="nav-number">1.3.</span> <span class="nav-text">WebFlux &amp; WebMvc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Usage"><span class="nav-number">1.4.</span> <span class="nav-text">Usage</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#How-to-test-with-springboot"><span class="nav-number">1.5.</span> <span class="nav-text">How to test with springboot</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Arthur Chen"
+      src="https://avatars3.githubusercontent.com/u/3351055?s=400&u=649f85e11baefc921a9cdc37e7769de61055dfa3&v=4">
+  <p class="site-author-name" itemprop="name">Arthur Chen</p>
+  <div class="site-description" itemprop="description">Tech & Life</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">9</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/efsn" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;efsn" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:efsn.chan@gmail.com" title="E-Mail → mailto:efsn.chan@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i></a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://plus.google.com/arthur" title="Google → https:&#x2F;&#x2F;plus.google.com&#x2F;arthur" rel="noopener" target="_blank"><i class="fa fa-fw fa-google"></i></a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title">
+      <i class="fa fa-fw fa-link"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="https://coolshell.cn/" title="https:&#x2F;&#x2F;coolshell.cn" rel="noopener" target="_blank">CoolShell</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://sjyuan.club/" title="https:&#x2F;&#x2F;sjyuan.club" rel="noopener" target="_blank">袁慎建</a>
+        </li>
+        <li class="links-of-blogroll-item">
+          <a href="https://www.liaoxuefeng.com/" title="https:&#x2F;&#x2F;www.liaoxuefeng.com" rel="noopener" target="_blank">廖雪峰</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+        <div class="back-to-top motion-element">
+          <i class="fa fa-arrow-up"></i>
+          <span>0%</span>
+        </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 2019 – 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Arthur Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
