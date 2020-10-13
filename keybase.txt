@@ -1,0 +1,56 @@
+==================================================================
+https://keybase.io/efsn
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://blog.elmi.cn
+  * I am efsn (https://keybase.io/efsn) on keybase.
+  * I have a public key ASDLc-46LfDU3JSMZaufzQTQVQFvl2yxMzuQG6L0M2Kogwo
+
+To do so, I am signing this object:
+
+{
+  "body": {
+    "key": {
+      "eldest_kid": "0120cb73ee3a2df0d4dc948c65ab9fcd04d055016f976cb1333b901ba2f43362a8830a",
+      "host": "keybase.io",
+      "kid": "0120cb73ee3a2df0d4dc948c65ab9fcd04d055016f976cb1333b901ba2f43362a8830a",
+      "uid": "aa99f9a5831be4dbd98bd219d48b2c19",
+      "username": "efsn"
+    },
+    "merkle_root": {
+      "ctime": 1602592924,
+      "hash": "eaf7229160e1d14ee8b91092003084c3e63f5a541e6b619cea78ad76f82fc79a42f8353eef7d08bd1bc815efd6ba68189563834ed77de7d08c77012699da8259",
+      "hash_meta": "1dde434d07a26c1223cffbee5cc5bb1de1fbac6d88caea0129b6fc8e90fe699c",
+      "seqno": 17816023
+    },
+    "service": {
+      "entropy": "RsqCVmMKQxEgp0ggmUrmhIB/",
+      "hostname": "blog.elmi.cn",
+      "protocol": "https:"
+    },
+    "type": "web_service_binding",
+    "version": 2
+  },
+  "client": {
+    "name": "keybase.io go client",
+    "version": "5.5.0"
+  },
+  "ctime": 1602592944,
+  "expire_in": 504576000,
+  "prev": "97512b8a2038e8240b3b8b1140c9284f808d5eafa2fe8208d39f59aa2cc5ee00",
+  "seqno": 11,
+  "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgy3PuOi3w1NyUjGWrn80E0FUBb5dssTM7kBui9DNiqIMKp3BheWxvYWTESpcCC8Qgl1EriiA46CQLO4sRQMkoT4CNXq+i/oII059ZqizF7gDEIMTn0g2ptMWQOduEHKqJasX/v1SvYY42e7x1DqSp1bBiAgHCo3NpZ8RAKp4T73OhE/fh2y4viXSLZESe3ljBR1sRrXJ1DB55Xj/lmRCRLJFi8ZQADl0hgeSiglKSq007KJuaqHelMtGeBahzaWdfdHlwZSCkaGFzaIKkdHlwZQildmFsdWXEIM04QjDb3KNTMZiZTOw4LVfaPeD2pCAOkfRGgweMcM56o3RhZ80CAqd2ZXJzaW9uAQ==
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/efsn
+
+==================================================================
